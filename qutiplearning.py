@@ -116,7 +116,7 @@ plt.figure()
 # plt.plot(times, np.append(result2.expect[0], result3.expect[0]))
 # plt.plot(times, result2.expect[0])
 
-# plt.axhline(y=fexpt, color='r', lw=1.5)
+plt.axhline(y=fexpt, color='r', ls='dashed', lw=1.5)
 
 plt.xscale('log')
 # plt.yscale('log')

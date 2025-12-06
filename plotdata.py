@@ -18,17 +18,18 @@ def calculate_lambda_2_power():
     Ukappa = 4.4e+6
     lambda_3 = 2 * U * alpha
     kappa = 1.21e+8
-    delta = (np.abs(lambda_3) ** 2) / U
+    delta = (np.abs(lambda_3) ** 2) / U * kappa # I think this is right?
+    print(delta)
     hbar_omega = 1.27e-19 
     # omega_a? omega_b?
     hbar = 1.05e-34
     
     lambda_2 = (lambda_3 ** 2) / (4 * U)
-    print(lambda_2)
     
-    beta = 1e-3
+    beta = 1e-2
     
-    P = lambda_2 / ((2 * Ukappa) * (1 / (((kappa / 2) - delta) ** 2)) * (1 / (hbar_omega))) / beta
+    # P = lambda_2 / ((2 * Ukappa) * (1 / (((kappa / 2) - delta) ** 2)) * (1 / (hbar_omega))) / beta
+    P = (1 / beta) * lambda_2 * (((kappa / 2) ** 2 + delta ** 2) / (2 * kappa)) * hbar_omega # 6.6e-11
     print(P)
     
     
@@ -60,6 +61,7 @@ def calculate_lambda_1_power():
 
 # Figure 2 plot
 def plot_U_vs_power_vs_photon_num():
+    is_half = True
     
     fontsize = 20
     legendsize = 14
@@ -86,9 +88,9 @@ def plot_U_vs_power_vs_photon_num():
         Qfac  = 10 * Us / 0.364
         
         # P = (np.abs(lambda_1s) ** 2) * h_bar_omega * (det_kap_ratio ** 2) * 1e+8
-        PQ[index] = (np.abs(lambda_1s) ** 2) * h_bar_omega * (det_kap_ratio ** 2) * 1e+8 / Qfac
+        PQ[index] = (np.abs(lambda_1s) ** 2) * h_bar_omega * 1e+8 / Qfac # * (det_kap_ratio ** 2)
         
-        PV[index] = (np.abs(lambda_1s) ** 2) * h_bar_omega * (det_kap_ratio ** 2) * 1e+8 # maybe
+        PV[index] = (np.abs(lambda_1s) ** 2) * h_bar_omega * 1e+8 # * (det_kap_ratio ** 2)
     
         # plt.plot((0.044 * 1e-2) / Us, P, color='g', alpha=opacities[index])
     
@@ -97,8 +99,10 @@ def plot_U_vs_power_vs_photon_num():
     
     xV, yV = np.meshgrid((0.0364 * 1e-2) / Us, photon_maxs)
     
-    
-    im = ax[0][0].pcolormesh(xV, yV, PV, cmap='hot', norm='log')
+    if is_half:
+        im = ax[0][0].pcolormesh(xV[49:, :51], yV[49:, :51], PV[49:, :51], cmap='hot', norm='log')
+    else:
+        im = ax[0][0].pcolormesh(xV, yV, PV, cmap='hot', norm='log')
     ax[0][0].set_xscale('log')
     ax[0][0].set_yscale('log')
     
@@ -106,8 +110,12 @@ def plot_U_vs_power_vs_photon_num():
     ax[0][0].axhline(y=0.013, color='b', linestyle='dashed')
     
     cbar = plt.colorbar(im, ax=ax[0][0])
-    cbar.set_ticks([1e-27, 1e-19, 1e-11, 1e-3, 1e+5])
-    cbar.set_ticklabels([r'$10^{-27}$', r'$10^{-19}$', r'$10^{-11}$', r'$10^{-3}$', r'$10^{5}$'], fontsize=fontsize)
+    if is_half:
+        cbar.set_ticks([1e-11, 1e-8, 1e-5, 1e-2, 1e+1])
+        cbar.set_ticklabels([r'$10^{-11}$',r'$10^{-8}$',r'$10^{-5}$',r'$10^{-2}$',r'$10^{1}$'], fontsize=fontsize)
+    else:
+        cbar.set_ticks([1e-16, 1e-12, 1e-8, 1e-4, 1e+0])
+        cbar.set_ticklabels([r'$10^{-16}$', r'$10^{-12}$', r'$10^{-8}$', r'$10^{-4}$', r'$10^{0}$'], fontsize=fontsize)
         
     cbar.set_label(r'$P$ (W)', fontsize=fontsize)
     
@@ -119,14 +127,21 @@ def plot_U_vs_power_vs_photon_num():
     
     xQ, yQ = np.meshgrid(1e+8 * Us / 0.364, photon_maxs)
     
-    im = ax[1][0].pcolormesh(xQ, yQ, PQ, cmap='hot', norm='log')
+    if is_half:
+        im = ax[1][0].pcolormesh(xQ[49:, :51], yQ[49:, :51], PQ[49:, :51], cmap='hot', norm='log')
+    else:
+        im = ax[1][0].pcolormesh(xQ, yQ, PQ, cmap='hot', norm='log')
     ax[1][0].set_xscale('log')
     ax[1][0].set_yscale('log')
     
     cbar = plt.colorbar(im, ax=ax[1][0])
     cbar.set_label(r'$P$ (W)', fontsize=fontsize)
-    cbar.set_ticks([1e-27, 1e-19, 1e-11, 1e-3, 1e+5])
-    cbar.set_ticklabels([r'$10^{-27}$', r'$10^{-19}$', r'$10^{-11}$', r'$10^{-3}$', r'$10^{5}$'], fontsize=fontsize)
+    if is_half:
+        cbar.set_ticks([1e-11, 1e-8, 1e-5, 1e-2, 1e+1])
+        cbar.set_ticklabels([r'$10^{-11}$',r'$10^{-8}$',r'$10^{-5}$',r'$10^{-2}$',r'$10^{1}$'], fontsize=fontsize)
+    else:
+        cbar.set_ticks([1e-16, 1e-12, 1e-8, 1e-4, 1e+0])
+        cbar.set_ticklabels([r'$10^{-16}$', r'$10^{-12}$', r'$10^{-8}$', r'$10^{-4}$', r'$10^{0}$'], fontsize=fontsize)
     
     ax[1][0].set_xlabel(r'Q', fontsize=fontsize)
     ax[1][0].set_ylabel(r'$\langle n \rangle$', fontsize=fontsize)
@@ -136,22 +151,25 @@ def plot_U_vs_power_vs_photon_num():
     ax[1][0].axvline(x=1e+7, color='b', linestyle='dashed')
     ax[1][0].axhline(y=0.013, color='b', linestyle='dashed')
     
-    indices_to_choose = [49, 59, 69, 79, 89]
+    # indices_to_choose = [49, 59, 69, 79, 89]
+    indices_to_choose = [69, 79, 89]
     
     ind_photon_nums = np.round(np.array([photon_maxs[i] for i in indices_to_choose]), 3)
     
-    for i in range(5):
+    for i in range(len(indices_to_choose)):
         index = indices_to_choose[i]
         det_kap_ratio = (np.abs(lambda_3s[index]) ** 2) / Us
 
         lambda_1s = lambda_3s[index] * (-1 + (np.absolute(lambda_3s[index]) ** 2) / (2 * (Us ** 2)) + 1j * kappa / (4 * Us))
         
         Qfac  = 10 * Us / 0.364
-        PQ_curr = (np.abs(lambda_1s) ** 2) * h_bar_omega * (det_kap_ratio ** 2) * 1e+8 / Qfac
+        PQ_curr = (np.abs(lambda_1s) ** 2) * h_bar_omega * 1e+8 / Qfac # * (det_kap_ratio ** 2)
 
-        PV_curr = (np.abs(lambda_1s) ** 2) * h_bar_omega * (det_kap_ratio ** 2) * 1e+8 # maybe
-        ax[0][1].plot((0.044 * 1e-2) / Us, PV_curr, color='g', alpha=opacities[i])
-        ax[1][1].plot(1e+8 * Us / 0.364, PQ_curr, color='g', alpha=opacities[i])
+        PV_curr = (np.abs(lambda_1s) ** 2) * h_bar_omega * 1e+8 # * (det_kap_ratio ** 2)
+        # ax[0][1].plot((0.044 * 1e-2) / Us, PV_curr, color='g', alpha=opacities[i])
+        ax[0][1].plot((0.044 * 1e-2) / Us[:55], PV_curr[:55], color='g', alpha=opacities[i])
+        # ax[1][1].plot(1e+8 * Us / 0.364, PQ_curr, color='g', alpha=opacities[i])
+        ax[1][1].plot(1e+8 * Us[:55] / 0.364, PQ_curr[:55], color='g', alpha=opacities[i])
     
     ax[0][1].set_xlabel(r'$V_{eff} \,\, (\mu \mathrm{m}^3$)', fontsize=fontsize)
     #ax[0][1].set_ylabel(r'$\Lambda_1$ (W)')
@@ -162,8 +180,12 @@ def plot_U_vs_power_vs_photon_num():
     
     ax[0][1].tick_params(axis='both', which='major', labelsize=fontsize)
     
-    ax[0][1].set_yticks([1e-19, 1e-13, 1e-7, 1e-1, 1e+5])
-    ax[0][1].set_yticklabels([r'$10^{-19}$', r'$10^{-13}$', r'$10^{-7}$', r'$10^{-1}$', r'$10^{5}$'])
+    if is_half:
+        ax[0][1].set_yticks([1e-11, 1e-8, 1e-5, 1e-2, 1e+1])
+        ax[0][1].set_yticklabels([r'$10^{-11}$',r'$10^{-8}$',r'$10^{-5}$',r'$10^{-2}$',r'$10^{1}$'], fontsize=fontsize)
+    else:
+        ax[0][1].set_yticks([1e-12, 1e-9, 1e-6, 1e-3, 1e+0])
+        ax[0][1].set_yticklabels([r'$10^{-12}$', r'$10^{-9}$', r'$10^{-6}$', r'$10^{-3}$', r'$10^{0}$'])
     
     ax[1][1].set_xlabel(r'Q', fontsize=fontsize)
     
@@ -173,8 +195,12 @@ def plot_U_vs_power_vs_photon_num():
     ax[1][1].set_yscale('log')
     ax[1][1].legend(ind_photon_nums, title=r'$\langle n \rangle$', frameon=False, fontsize=legendsize)
     
-    ax[1][1].set_yticks([1e-19, 1e-13, 1e-7, 1e-1, 1e+5])
-    ax[1][1].set_yticklabels([r'$10^{-19}$', r'$10^{-13}$', r'$10^{-7}$', r'$10^{-1}$', r'$10^{5}$'])
+    if is_half:
+        ax[1][1].set_yticks([1e-11, 1e-8, 1e-5, 1e-2, 1e+1])
+        ax[1][1].set_yticklabels([r'$10^{-11}$',r'$10^{-8}$',r'$10^{-5}$',r'$10^{-2}$',r'$10^{1}$'], fontsize=fontsize)
+    else:
+        ax[1][1].set_yticks([1e-12, 1e-9, 1e-6, 1e-3, 1e+0])
+        ax[1][1].set_yticklabels([r'$10^{-12}$', r'$10^{-9}$', r'$10^{-6}$', r'$10^{-3}$', r'$10^{0}$'])
     ax[1][1].tick_params(axis='both', which='major', labelsize=fontsize)
     
     plt.xticks(fontsize=fontsize)
@@ -182,12 +208,18 @@ def plot_U_vs_power_vs_photon_num():
     
     
     plt.tight_layout()
-    plt.savefig(os.path.join('images', 'Q and V vs n vs Lambda_1 fontsize.png'), bbox_inches='tight')
+    if is_half:
+        plt.savefig(os.path.join('images', 'fig 2 scaled.png'), bbox_inches='tight')
+    else:
+        plt.savefig(os.path.join('images', 'fig 2.png'), bbox_inches='tight')
     plt.show()
     
 
 # Figure 3 plot
 def combined_figure_3():
+    
+    fontsize = 14
+    legendsize = 12
         
     state1 = np.load(os.path.join('data', 'fig 3', 'squeezed state U=0.npy'))
     state2 = np.load(os.path.join('data', 'fig 3', 'squeezed state U=0.2.npy'))
@@ -195,22 +227,26 @@ def combined_figure_3():
     
     xvec = np.linspace(-5, 5, 100)
     
-    fig, ax = plt.subplots(2,3)
+    fig, ax = plt.subplots(2,3, gridspec_kw={'height_ratios': [1.5,1]})
     fig.set_size_inches(19.2, 9.6)
+    # fig.set_size_inches(19.2, 9.6)
     
     ax[0][0].contourf(xvec, xvec, np.abs(state1), 100)
     
-    ax[0][0].set_xlabel(r'x')
-    ax[0][0].set_ylabel(r'p')
+    ax[0][0].set_xlabel(r'x', fontsize=fontsize)
+    ax[0][0].set_ylabel(r'p', fontsize=fontsize)
+    ax[0][0].tick_params(axis='both', which='major', labelsize=fontsize)
     
     ax[0][1].contourf(xvec, xvec, np.abs(state2), 100)
     
-    ax[0][1].set_xlabel(r'x')
-    ax[0][1].set_ylabel(r'p')
+    ax[0][1].set_xlabel(r'x', fontsize=fontsize)
+    ax[0][1].set_ylabel(r'p', fontsize=fontsize)
+    ax[0][1].tick_params(axis='both', which='major', labelsize=fontsize)
     
     ax[0][2].contourf(xvec, xvec, np.abs(state3), 100)
-    ax[0][2].set_xlabel(r'x')
-    ax[0][2].set_ylabel(r'p')
+    ax[0][2].set_xlabel(r'x', fontsize=fontsize)
+    ax[0][2].set_ylabel(r'p', fontsize=fontsize)
+    ax[0][2].tick_params(axis='both', which='major', labelsize=fontsize)
     
     
     alpha_err_re = np.linspace(-0.025, 0.025, 51)
@@ -225,10 +261,15 @@ def combined_figure_3():
     im = ax[1][0].pcolormesh(alpha_x, alpha_y, np.real(g2_0), cmap='hot')
     
     cbar = plt.colorbar(im)
-    cbar.set_label(r'$g^{(2)}(0)$')
+    # cbar.set_label(r'$g^{(2)}(0)$', fontsize=fontsize)
+    cbar.set_ticks([0.002, 0.004, 0.006, 0.008])
+    cbar.set_ticklabels([0.002, 0.004, 0.006, 0.008], fontsize=fontsize)
     
-    ax[1][0].set_xlabel(r'$Re(\Delta\alpha)$')
-    ax[1][0].set_ylabel(r'$Im(\Delta\alpha)$')
+    ax[1][0].set_xlabel(r'$Re(\Delta\alpha)$', fontsize=fontsize)
+    ax[1][0].set_ylabel(r'$Im(\Delta\alpha)$', fontsize=fontsize)
+    
+    ax[1][0].tick_params(axis='both', which='major', labelsize=fontsize)
+    ax[1][0].set_yticks([-0.02, 0, 0.02])
     
     
     alphas = np.linspace(0.1, 2, 20)
@@ -236,24 +277,26 @@ def combined_figure_3():
     errs_alphas = np.load(os.path.join('data', 'fig 3', '0.025 alphavserr relative, init_err_g2_0_short.npy'))
 
     ln1_1 = ax[1][1].plot(alphas, g2_0_2, color='g', label=r'$g^{(2)}(0)$')
-    ax[1][1].set_xlabel(r'$\alpha$')
-    ax[1][1].set_ylabel(r'$g^{(2)}(0)$')
+    ax[1][1].set_xlabel(r'$\alpha$', fontsize=fontsize)
+    ax[1][1].set_ylabel(r'$g^{(2)}(0)$', fontsize=fontsize)
+    ax[1][1].tick_params(axis='both', which='major', labelsize=fontsize)
     
     ax1_2 = ax[1][1].twinx()
     ln1_2 = ax1_2.plot(alphas, errs_alphas, label='Loss')
-    ax1_2.set_ylabel(r'$\mathrm{Loss} (\mathrm{a.u.})$')
+    ax1_2.set_ylabel(r'$\mathrm{Loss} (\mathrm{a.u.})$', fontsize=fontsize)
     ax1_2.set_ylim([-1, 9])
+    ax1_2.tick_params(axis='both', which='major', labelsize=fontsize)
     
     tot1 = ln1_1 + ln1_2
     labels = [l.get_label() for l in tot1]
     
-    ax[1][1].legend(tot1, labels)
+    ax[1][1].legend(tot1, labels, frameon=False, fontsize=legendsize)
     
     
-    time_consts = np.load(os.path.join('data', 'fig 3', '1 time_const_noramp_findlambda2.npy'))
-    g2_0_short = np.load(os.path.join('data', 'fig 3', '1 short g2_0_noramp_findlambda2.npy'))
+    time_consts = np.load(os.path.join('data', 'fig 3', '2 tau_err time_consts.npy'))
+    g2_0_short = np.load(os.path.join('data', 'fig 3', '2 tau_err g2_0.npy'))
 
-    errs = np.load(os.path.join('data', 'fig 3', '2 coherence_err no_ramp_find_lambda2.npy'))
+    errs = np.load(os.path.join('data', 'fig 3', '2 tau_err errs.npy'))
 
     ln2_1 = ax[1][2].plot(time_consts * 10, np.real(g2_0_short), color='g', label=r'$g^{(2)}(0)$')
     ax2_2 = ax[1][2].twinx()
@@ -262,13 +305,16 @@ def combined_figure_3():
     tot2 = ln2_2 + ln2_1
     labels = [l.get_label() for l in tot2]
 
-    ax[1][2].set_xlabel(r'$\tau (\mathrm{ns})$')
-    ax[1][2].set_ylabel(r'$g^{(2)}(0)$')
-    ax2_2.set_ylabel(r'$\mathrm{Loss} (\mathrm{a.u.})$')
+    ax[1][2].set_xlabel(r'$\tau (\mathrm{ns})$', fontsize=fontsize)
+    ax[1][2].set_ylabel(r'$g^{(2)}(0)$', fontsize=fontsize)
+    ax[1][2].tick_params(axis='both', which='major', labelsize=fontsize)
+    ax2_2.set_ylabel(r'$\mathrm{Loss} (\mathrm{a.u.})$', fontsize=fontsize)
+    ax2_2.tick_params(axis='both', which='major', labelsize=fontsize)
     
-    ax2_2.set_ylim([-0.001, 0.013])
     
-    ax[1][2].legend(tot2, labels)
+    # ax2_2.set_ylim([-0.001, 0.013])
+    
+    ax[1][2].legend(tot2, labels, frameon=False, fontsize=legendsize)
     
     plt.tight_layout()
     
@@ -321,7 +367,6 @@ def plot_combined_error():
     ax[1].set_ylabel(r'$Im(\Delta\Lambda_2)$', fontsize=fontsize)
     ax[1].tick_params(axis='both', which='major', labelsize=fontsize)
     
-    
     lambda_1_evo = 1.0192 + 1j
     lambda_2_evo = -0.1456
     
@@ -350,11 +395,16 @@ def plot_combined_error():
 
     
 
-# plot_U_vs_power_vs_photon_num()
+plot_U_vs_power_vs_photon_num()
 # calculate_lambda_2_power()
 # calculate_lambda_1_power()
-plot_combined_error()
+# plot_combined_error()
 # combined_figure_3()
+
+
+
+
+
 
 
 

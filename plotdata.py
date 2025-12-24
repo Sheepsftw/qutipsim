@@ -66,14 +66,20 @@ def plot_U_vs_power_vs_photon_num():
     fontsize = 20
     legendsize = 14
     
+    U = 0.0364
     kappa = 1
     
+    Us = np.logspace(-3, -1, 100, base=10.0) * 3.64 * kappa
     lambda_3s = np.load(os.path.join('data', 'fig 2', '1 lambda3_n_vs_lambda3.npy'))
     photon_maxs = np.load(os.path.join('data', 'fig 2', '1 photon_maxs_n_vs_lambda3.npy'))
-    Us = np.logspace(-3, -1, 100, base=10.0) * 3.64 * kappa 
+    
+    kappas = np.logspace(-1, 1, 100)
+    lambda_3s_kappa = np.load(os.path.join('data', 'fig 2', '1 lambda3_n_vs_lambda_checkkappa.npy'))
+    photon_maxs_kappa = np.load(os.path.join('data', 'fig 2', '1 photon_maxs_n_vs_lambda3_checkkappa.npy'))
     h_bar_omega = 1.27e-19
     
     
+    print(photon_maxs[50])
     # lambda_3s = np.array([0.1, 0.33, 0.5, 1, 2])
     opacities = [0.25, 0.4, 0.55, 0.85, 1]
     
@@ -85,10 +91,11 @@ def plot_U_vs_power_vs_photon_num():
 
         lambda_1s = lambda_3s[index] * (-1 + (np.absolute(lambda_3s[index]) ** 2) / (2 * (Us ** 2)) + 1j * kappa / (4 * Us))
         
+        lambda_1s_kappa = lambda_3s_kappa[index] * (-1 + (np.absolute(lambda_3s_kappa[index]) ** 2) / (2 * (Us ** 2)) + 1j * kappas[index] / (4 * Us))
+        
         Qfac  = 10 * Us / 0.364
         
-        # P = (np.abs(lambda_1s) ** 2) * h_bar_omega * (det_kap_ratio ** 2) * 1e+8
-        PQ[index] = (np.abs(lambda_1s) ** 2) * h_bar_omega * 1e+8 / Qfac # * (det_kap_ratio ** 2)
+        PQ[index] = (np.abs(lambda_1s_kappa) ** 2) * h_bar_omega * 1e+8 / kappas[index] # * (det_kap_ratio ** 2)
         
         PV[index] = (np.abs(lambda_1s) ** 2) * h_bar_omega * 1e+8 # * (det_kap_ratio ** 2)
     
@@ -125,7 +132,7 @@ def plot_U_vs_power_vs_photon_num():
     ax[0][0].tick_params(axis='both', which='major', labelsize=fontsize)
     
     
-    xQ, yQ = np.meshgrid(1e+8 * Us / 0.364, photon_maxs)
+    xQ, yQ = np.meshgrid(1e+8 * Us / 0.364, photon_maxs_kappa)
     
     if is_half:
         im = ax[1][0].pcolormesh(xQ[49:, :51], yQ[49:, :51], PQ[49:, :51], cmap='hot', norm='log')
@@ -137,8 +144,8 @@ def plot_U_vs_power_vs_photon_num():
     cbar = plt.colorbar(im, ax=ax[1][0])
     cbar.set_label(r'$P$ (W)', fontsize=fontsize)
     if is_half:
-        cbar.set_ticks([1e-11, 1e-8, 1e-5, 1e-2, 1e+1])
-        cbar.set_ticklabels([r'$10^{-11}$',r'$10^{-8}$',r'$10^{-5}$',r'$10^{-2}$',r'$10^{1}$'], fontsize=fontsize)
+        cbar.set_ticks([1e-11, 1e-7, 1e-3, 1e+1, 1e+5])
+        cbar.set_ticklabels([r'$10^{-11}$',r'$10^{-7}$',r'$10^{-3}$',r'$10^{1}$',r'$10^{5}$'], fontsize=fontsize)
     else:
         cbar.set_ticks([1e-16, 1e-12, 1e-8, 1e-4, 1e+0])
         cbar.set_ticklabels([r'$10^{-16}$', r'$10^{-12}$', r'$10^{-8}$', r'$10^{-4}$', r'$10^{0}$'], fontsize=fontsize)
@@ -162,12 +169,14 @@ def plot_U_vs_power_vs_photon_num():
 
         lambda_1s = lambda_3s[index] * (-1 + (np.absolute(lambda_3s[index]) ** 2) / (2 * (Us ** 2)) + 1j * kappa / (4 * Us))
         
+        lambda_1s_kappa = lambda_3s_kappa[index] * (-1 + (np.absolute(lambda_3s_kappa[index]) ** 2) / (2 * (Us ** 2)) + 1j * kappas[index] / (4 * Us))
+        
         Qfac  = 10 * Us / 0.364
-        PQ_curr = (np.abs(lambda_1s) ** 2) * h_bar_omega * 1e+8 / Qfac # * (det_kap_ratio ** 2)
+        PQ_curr = (np.abs(lambda_1s_kappa) ** 2) * h_bar_omega * 1e+8 / kappas[index] # * (det_kap_ratio ** 2)
 
         PV_curr = (np.abs(lambda_1s) ** 2) * h_bar_omega * 1e+8 # * (det_kap_ratio ** 2)
         # ax[0][1].plot((0.044 * 1e-2) / Us, PV_curr, color='g', alpha=opacities[i])
-        ax[0][1].plot((0.044 * 1e-2) / Us[:55], PV_curr[:55], color='g', alpha=opacities[i])
+        ax[0][1].plot((0.0364 * 1e-2) / Us[:55], PV_curr[:55], color='g', alpha=opacities[i])
         # ax[1][1].plot(1e+8 * Us / 0.364, PQ_curr, color='g', alpha=opacities[i])
         ax[1][1].plot(1e+8 * Us[:55] / 0.364, PQ_curr[:55], color='g', alpha=opacities[i])
     
@@ -196,8 +205,8 @@ def plot_U_vs_power_vs_photon_num():
     ax[1][1].legend(ind_photon_nums, title=r'$\langle n \rangle$', frameon=False, fontsize=legendsize)
     
     if is_half:
-        ax[1][1].set_yticks([1e-11, 1e-8, 1e-5, 1e-2, 1e+1])
-        ax[1][1].set_yticklabels([r'$10^{-11}$',r'$10^{-8}$',r'$10^{-5}$',r'$10^{-2}$',r'$10^{1}$'], fontsize=fontsize)
+        ax[1][1].set_yticks([1e-11, 1e-7, 1e-3, 1e+1, 1e+5])
+        ax[1][1].set_yticklabels([r'$10^{-11}$',r'$10^{-7}$',r'$10^{-3}$',r'$10^{1}$',r'$10^{5}$'], fontsize=fontsize)
     else:
         ax[1][1].set_yticks([1e-12, 1e-9, 1e-6, 1e-3, 1e+0])
         ax[1][1].set_yticklabels([r'$10^{-12}$', r'$10^{-9}$', r'$10^{-6}$', r'$10^{-3}$', r'$10^{0}$'])

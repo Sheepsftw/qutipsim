@@ -66,20 +66,20 @@ def plot_U_vs_power_vs_photon_num():
     fontsize = 20
     legendsize = 14
     
-    U = 0.0364
+    U = 0.000364
     kappa = 1
     
-    Us = np.logspace(-3, -1, 100, base=10.0) * 3.64 * kappa
-    lambda_3s = np.load(os.path.join('data', 'fig 2', '1 lambda3_n_vs_lambda3.npy'))
-    photon_maxs = np.load(os.path.join('data', 'fig 2', '1 photon_maxs_n_vs_lambda3.npy'))
+    Us = np.logspace(-3, -1, 100, base=10.0) * 0.0364 * kappa
+    lambda_3s = np.load(os.path.join('data', 'fig 2', '1 lambda3_n_vs_lambda3_q5.npy'))
+    photon_maxs = np.load(os.path.join('data', 'fig 2', '1 photon_maxs_n_vs_lambda3_q5.npy'))
     
     kappas = np.logspace(-1, 1, 100)
-    lambda_3s_kappa = np.load(os.path.join('data', 'fig 2', '1 lambda3_n_vs_lambda_checkkappa.npy'))
-    photon_maxs_kappa = np.load(os.path.join('data', 'fig 2', '1 photon_maxs_n_vs_lambda3_checkkappa.npy'))
+    lambda_3s_kappa = np.load(os.path.join('data', 'fig 2', '1 lambda3_n_vs_lambda_checkkappa_q5.npy'))
+    photon_maxs_kappa = np.load(os.path.join('data', 'fig 2', '1 photon_maxs_n_vs_lambda3_checkkappa_q5.npy'))
     h_bar_omega = 1.27e-19
     
     
-    print(photon_maxs[50])
+    print(photon_maxs[65])
     # lambda_3s = np.array([0.1, 0.33, 0.5, 1, 2])
     opacities = [0.25, 0.4, 0.55, 0.85, 1]
     
@@ -104,10 +104,13 @@ def plot_U_vs_power_vs_photon_num():
     fig, ax = plt.subplots(2, 2)
     fig.set_size_inches(12.8, 9.6)
     
-    xV, yV = np.meshgrid((0.0364 * 1e-2) / Us, photon_maxs)
+    print(PQ[65, 50])
+    print(PV[65, 50])
+    
+    xV, yV = np.meshgrid((0.000364 * 1e-2) / Us, photon_maxs)
     
     if is_half:
-        im = ax[0][0].pcolormesh(xV[49:, :51], yV[49:, :51], PV[49:, :51], cmap='hot', norm='log')
+        im = ax[0][0].pcolormesh(xV[39:, :61], yV[39:, :61], PV[39:, :61], cmap='hot', norm='log')
     else:
         im = ax[0][0].pcolormesh(xV, yV, PV, cmap='hot', norm='log')
     ax[0][0].set_xscale('log')
@@ -115,11 +118,11 @@ def plot_U_vs_power_vs_photon_num():
     
     ax[0][0].axvline(x=1e-2, color='b', linestyle='dashed')
     ax[0][0].axhline(y=0.013, color='b', linestyle='dashed')
-    
+
     cbar = plt.colorbar(im, ax=ax[0][0])
     if is_half:
-        cbar.set_ticks([1e-11, 1e-8, 1e-5, 1e-2, 1e+1])
-        cbar.set_ticklabels([r'$10^{-11}$',r'$10^{-8}$',r'$10^{-5}$',r'$10^{-2}$',r'$10^{1}$'], fontsize=fontsize)
+        cbar.set_ticks([1e-8, 1e-4, 1e+0, 1e+4, 1e+8])
+        cbar.set_ticklabels([r'$10^{-8}$',r'$10^{-4}$',r'$10^{0}$',r'$10^{4}$',r'$10^{8}$'], fontsize=fontsize)
     else:
         cbar.set_ticks([1e-16, 1e-12, 1e-8, 1e-4, 1e+0])
         cbar.set_ticklabels([r'$10^{-16}$', r'$10^{-12}$', r'$10^{-8}$', r'$10^{-4}$', r'$10^{0}$'], fontsize=fontsize)
@@ -132,10 +135,10 @@ def plot_U_vs_power_vs_photon_num():
     ax[0][0].tick_params(axis='both', which='major', labelsize=fontsize)
     
     
-    xQ, yQ = np.meshgrid(1e+8 * Us / 0.364, photon_maxs_kappa)
+    xQ, yQ = np.meshgrid(1e+6 * Us / 0.00364, photon_maxs_kappa)
     
     if is_half:
-        im = ax[1][0].pcolormesh(xQ[49:, :51], yQ[49:, :51], PQ[49:, :51], cmap='hot', norm='log')
+        im = ax[1][0].pcolormesh(xQ[39:, :61], yQ[39:, :61], PQ[39:, :61], cmap='hot', norm='log')
     else:
         im = ax[1][0].pcolormesh(xQ, yQ, PQ, cmap='hot', norm='log')
     ax[1][0].set_xscale('log')
@@ -144,8 +147,8 @@ def plot_U_vs_power_vs_photon_num():
     cbar = plt.colorbar(im, ax=ax[1][0])
     cbar.set_label(r'$P$ (W)', fontsize=fontsize)
     if is_half:
-        cbar.set_ticks([1e-11, 1e-7, 1e-3, 1e+1, 1e+5])
-        cbar.set_ticklabels([r'$10^{-11}$',r'$10^{-7}$',r'$10^{-3}$',r'$10^{1}$',r'$10^{5}$'], fontsize=fontsize)
+        cbar.set_ticks([1e-8, 1e-3, 1e+2, 1e+7, 1e+12])
+        cbar.set_ticklabels([r'$10^{-8}$',r'$10^{-3}$',r'$10^{2}$',r'$10^{7}$',r'$10^{12}$'], fontsize=fontsize)
     else:
         cbar.set_ticks([1e-16, 1e-12, 1e-8, 1e-4, 1e+0])
         cbar.set_ticklabels([r'$10^{-16}$', r'$10^{-12}$', r'$10^{-8}$', r'$10^{-4}$', r'$10^{0}$'], fontsize=fontsize)
@@ -155,7 +158,7 @@ def plot_U_vs_power_vs_photon_num():
     
     ax[1][0].tick_params(axis='both', which='major', labelsize=fontsize)
     
-    ax[1][0].axvline(x=1e+7, color='b', linestyle='dashed')
+    ax[1][0].axvline(x=1e+5, color='b', linestyle='dashed')
     ax[1][0].axhline(y=0.013, color='b', linestyle='dashed')
     
     # indices_to_choose = [49, 59, 69, 79, 89]
@@ -190,8 +193,8 @@ def plot_U_vs_power_vs_photon_num():
     ax[0][1].tick_params(axis='both', which='major', labelsize=fontsize)
     
     if is_half:
-        ax[0][1].set_yticks([1e-11, 1e-8, 1e-5, 1e-2, 1e+1])
-        ax[0][1].set_yticklabels([r'$10^{-11}$',r'$10^{-8}$',r'$10^{-5}$',r'$10^{-2}$',r'$10^{1}$'], fontsize=fontsize)
+        ax[0][1].set_yticks([1e-3, 1e-1, 1e+1, 1e+3, 1e+5])
+        ax[0][1].set_yticklabels([r'$10^{-3}$',r'$10^{-1}$',r'$10^{1}$',r'$10^{3}$',r'$10^{5}$'], fontsize=fontsize)
     else:
         ax[0][1].set_yticks([1e-12, 1e-9, 1e-6, 1e-3, 1e+0])
         ax[0][1].set_yticklabels([r'$10^{-12}$', r'$10^{-9}$', r'$10^{-6}$', r'$10^{-3}$', r'$10^{0}$'])
@@ -205,8 +208,8 @@ def plot_U_vs_power_vs_photon_num():
     ax[1][1].legend(ind_photon_nums, title=r'$\langle n \rangle$', frameon=False, fontsize=legendsize)
     
     if is_half:
-        ax[1][1].set_yticks([1e-11, 1e-7, 1e-3, 1e+1, 1e+5])
-        ax[1][1].set_yticklabels([r'$10^{-11}$',r'$10^{-7}$',r'$10^{-3}$',r'$10^{1}$',r'$10^{5}$'], fontsize=fontsize)
+        ax[1][1].set_yticks([1e-1, 1e+2, 1e+5, 1e+8, 1e+11])
+        ax[1][1].set_yticklabels([r'$10^{-1}$',r'$10^{2}$',r'$10^{5}$',r'$10^{8}$',r'$10^{11}$'], fontsize=fontsize)
     else:
         ax[1][1].set_yticks([1e-12, 1e-9, 1e-6, 1e-3, 1e+0])
         ax[1][1].set_yticklabels([r'$10^{-12}$', r'$10^{-9}$', r'$10^{-6}$', r'$10^{-3}$', r'$10^{0}$'])
@@ -218,7 +221,7 @@ def plot_U_vs_power_vs_photon_num():
     
     plt.tight_layout()
     if is_half:
-        plt.savefig(os.path.join('images', 'fig 2 scaled.png'), bbox_inches='tight')
+        plt.savefig(os.path.join('images', 'fig 2 scaled_q5.png'), bbox_inches='tight')
     else:
         plt.savefig(os.path.join('images', 'fig 2.png'), bbox_inches='tight')
     plt.show()
@@ -301,15 +304,14 @@ def combined_figure_3():
     
     ax[1][1].legend(tot1, labels, frameon=False, fontsize=legendsize)
     
-    
     time_consts = np.load(os.path.join('data', 'fig 3', '2 tau_err time_consts.npy'))
     g2_0_short = np.load(os.path.join('data', 'fig 3', '2 tau_err g2_0.npy'))
 
     errs = np.load(os.path.join('data', 'fig 3', '2 tau_err errs.npy'))
 
-    ln2_1 = ax[1][2].plot(time_consts * 10, np.real(g2_0_short), color='g', label=r'$g^{(2)}(0)$')
+    ln2_1 = ax[1][2].plot(time_consts * 5.18, np.real(g2_0_short), color='g', label=r'$g^{(2)}(0)$')
     ax2_2 = ax[1][2].twinx()
-    ln2_2 = ax2_2.plot(time_consts * 10, np.real(errs), label='Loss')
+    ln2_2 = ax2_2.plot(time_consts * 5.18, np.real(errs), label='Loss')
     
     tot2 = ln2_2 + ln2_1
     labels = [l.get_label() for l in tot2]
@@ -404,11 +406,11 @@ def plot_combined_error():
 
     
 
-plot_U_vs_power_vs_photon_num()
+# plot_U_vs_power_vs_photon_num()
 # calculate_lambda_2_power()
 # calculate_lambda_1_power()
 # plot_combined_error()
-# combined_figure_3()
+combined_figure_3()
 
 
 

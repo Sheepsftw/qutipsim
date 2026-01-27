@@ -422,6 +422,78 @@ def lambda_2_error_helper():
     # np.save(os.path.join('data', '3 t=0.01 maxerr=0.2 re_im g2_0_lambda1_error.npy'), g2_0)
 
 
+def tau_error():
+    N = 100
+    alpha = 2
+    U = 0.000364
+    kappa = 1
+    time_consts = np.linspace(0.1, 2, 20)
+    g2_0s = np.zeros(20)
+    errs = np.zeros(20)
+    
+    for index in range(20):
+        time_const = time_consts[index]
+        
+        args = ModelArgument()
+        
+        args.optim_lambda1 = True
+        args.log_loops = True
+        # args.log_alpha = True
+        
+        args.lambda_1_rate=10
+        args.lambda_1_test=0.1
+        
+        
+        s1 = Simulation(N=N, alpha=alpha, kappa=kappa, U=U, args=args)
+        
+        params1 = s1.optimize(init_lambda1=1+1j, init_lambda2=0, time_const=time_const, max_loops=200)
+        
+        args.lambda_1_test=0.1
+        args.lambda_1_rate=0.1
+        args.lambda_2_rate=0.1
+        args.lambda_2_test=0.1
+        args.optim_lambda2=True
+        args.optim_lambda1 = False
+        args.include_u = True
+        
+        s2 = Simulation(N=N, alpha=alpha, kappa=kappa, U=U, args=args)
+    
+        min_err = 100000
+        start_l2 = 0
+    
+        for i1 in range(-5, 5):
+            for i2 in range(-5, 5):
+                curr_l2 = 2 * i1 + 2 * i2*1j
+                curr_err, state = s2.run_sim(params1['lambda_1'], curr_l2, time_const)
+                if curr_err < min_err:
+                    start_l2 = curr_l2
+                    min_err = curr_err
+                print('done: ' + str(i1) + ' ' + str(i2) + 'j')
+                print('curr_err: ' + str(curr_err))
+        
+        params2 = s2.optimize(init_lambda1=params1['lambda_1'], init_lambda2=start_l2, time_const=time_const, max_loops=120)
+        
+        
+        args.lambda_1_test = 0.1
+        args.lambda_2_test = 0.1
+        args.optim_lambda1 = True
+        args.optim_lambda2 = True
+        
+        s3 = Simulation(N=N, alpha=alpha, kappa=kappa, U=U, args=args)
+        params3 = s3.optimize(init_lambda1=params2['lambda_1'], init_lambda2=params2['lambda_2'], time_const=time_const, max_loops=120)
+        
+        
+        err, state2 = s3.run_sim(params3['lambda_1'], params3['lambda_2'], time_const)
+        errs[index] = err
+        
+        final_state = s3.evolve_lambda_3(init_state=state2, is_short=True)
+        g2_0s[index] = s3.check_g2_0(final_state)
+    
+    np.save(os.path.join('data', 'fig 3', '2 tau_err time_consts'), time_consts)
+    np.save(os.path.join('data', 'fig 3', '2 tau_err g2_0'), g2_0s)
+    np.save(os.path.join('data', 'fig 3', '2 tau_err errs'), errs)
+
+
 import matplotlib.pyplot as plt
 
 def squeezing():
@@ -501,4 +573,5 @@ def squeezing():
 # test = np.load(os.path.join('data', 't=0.01 g2_0_lambda2_error.npy'))
 # print(test)
 # lambda_2_error_helper()
-squeezing()
+# squeezing()
+tau_error()
